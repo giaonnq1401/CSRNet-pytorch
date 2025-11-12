@@ -1,0 +1,19 @@
+# CPU-friendly requirements for CSRNet on Python 3.12
+# Torch/torchvision from official CPU wheels
+-f https://download.pytorch.org/whl/cpu
+# torch==2.5.1+cpu
+# torchvision==0.20.1+cpu
+
+# Core scientific stack
+numpy>=1.26
+scipy>=1.10
+h5py>=3.9
+pillow>=10.0
+opencv-python>=4.8
+matplotlib>=3.8
+tqdm>=4.66
+
+# Jupyter for running notebooks with your venv
+jupyter>=1.0
+notebook>=7.2
+ipykernel>=6.29

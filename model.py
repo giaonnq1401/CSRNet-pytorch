@@ -1,7 +1,6 @@
 import torch.nn as nn
 import torch
 from torchvision import models
-from utils import save_net,load_net
 
 class CSRNet(nn.Module):
     def __init__(self, load_weights=False):
@@ -12,11 +11,24 @@ class CSRNet(nn.Module):
         self.frontend = make_layers(self.frontend_feat)
         self.backend = make_layers(self.backend_feat,in_channels = 512,dilation = True)
         self.output_layer = nn.Conv2d(64, 1, kernel_size=1)
+        # Initialize all weights first
+        self._initialize_weights()
+        # Optionally load VGG16 Frontend weights (skip when load_weights=True)
         if not load_weights:
-            mod = models.vgg16(pretrained = True)
-            self._initialize_weights()
-            for i in range(len(self.frontend.state_dict().items())):
-                self.frontend.state_dict().items()[i][1].data[:] = mod.state_dict().items()[i][1].data[:]
+            try:
+                # Newer torchvision API
+                mod = models.vgg16(weights=getattr(models, 'VGG16_Weights', None).IMAGENET1K_FEATURES) if hasattr(models, 'VGG16_Weights') else models.vgg16(pretrained=True)
+            except Exception:
+                # Fallback to deprecated pretrained flag
+                mod = models.vgg16(pretrained=True)
+            # Copy conv weights from VGG16.features to our frontend conv layers
+            vgg_convs = [m for m in mod.features if isinstance(m, nn.Conv2d)]
+            fe_convs = [m for m in self.frontend if isinstance(m, nn.Conv2d)]
+            for src, dst in zip(vgg_convs, fe_convs):
+                if dst.weight.shape == src.weight.shape:
+                    dst.weight.data.copy_(src.weight.data)
+                    if dst.bias is not None and src.bias is not None:
+                        dst.bias.data.copy_(src.bias.data)
     def forward(self,x):
         x = self.frontend(x)
         x = self.backend(x)

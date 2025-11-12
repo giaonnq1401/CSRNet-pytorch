@@ -37,7 +37,10 @@ def load_data(img_path,train = True):
     
     
     
-    target = cv2.resize(target,(target.shape[1]/8,target.shape[0]/8),interpolation = cv2.INTER_CUBIC)*64
+    # Ensure integer sizes for Python 3 and keep density sum invariant
+    h8 = max(1, target.shape[0] // 8)
+    w8 = max(1, target.shape[1] // 8)
+    target = cv2.resize(target, (w8, h8), interpolation=cv2.INTER_CUBIC) * 64
     
     
     return img,target
