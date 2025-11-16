@@ -42,7 +42,7 @@ def main():
     args.momentum = 0.95
     args.decay = 5 * 1e-4
     args.start_epoch = 0
-    args.epochs = 400
+    args.epochs = 10
     args.steps = [-1, 1, 100, 150]
     args.scales = [1, 1, 1, 1]
     args.workers = 4
@@ -137,7 +137,7 @@ def train(train_list, model, criterion, optimizer, epoch):
                   .format(epoch, i, len(train_loader), batch_time=batch_time, data_time=data_time, loss=losses))
     
 def validate(val_list, model, criterion):
-    print('begin test')
+    print('begin test') 
     test_loader = torch.utils.data.DataLoader(
         dataset.listDataset(val_list,
                             shuffle=False,
